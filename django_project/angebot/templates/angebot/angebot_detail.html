@@ -1,0 +1,24 @@
+{% extends "blog/base.html" %}
+{% block content %}
+    <p>
+        <h3>Angebot: {{angebot.titel}}</h3>
+    </p>
+    <div class="list-group-item">
+        Kunde: {{kunde.kunde}}
+    </div>
+    <div class="list-group-item">
+        Angebot: {{angebot.titel}}
+    </div>
+    <div class="list-group-item">
+        Objekt: {{objekt.bezeichnung}}
+    </div>
+    {% for raum in raeume %}
+        <a class="list-group-item" href="">
+            <span class="badge badge-pill badge-primary float-right">asdf</span>
+            Raum: {{raum.name}}
+        </a>
+    {% endfor %}
+
+    <br>
+
+{% endblock content %}

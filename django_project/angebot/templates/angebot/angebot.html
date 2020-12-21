@@ -1,0 +1,8 @@
+{% extends "blog/base.html" %}
+{% block content %}
+    {% for kunde in testkunden %}
+            <div class="media-body">
+                <h2><a class="article-title">{{ kunde.vname }}</a></h2>
+            </div>
+    {% endfor %}
+{% endblock content %}

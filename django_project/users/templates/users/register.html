@@ -1,0 +1,24 @@
+{% extends "blog/base.html" %}
+{% load crispy_forms_tags %}
+{% block content %}
+
+    <div class="content-section">
+        <form method="POST">
+            {% csrf_token %}<!-- für Django Sicherheit-->
+            <fieldset class="form-group">
+                <legend class="border-bottom mb-4">Join Today</legend><!-- margin bottom = 4-->
+                    {{ form|crispy}}
+                    <!--{{ form.as_p }} das .as_p rendert unsere form in Paragraph Tags, sonst passen die zeilenabsätze nicht-->
+            </fieldset>
+            <div class="form-group">
+                <button class="btn btn-outline-info" type="submit">Sign Up</button>
+            </div>
+        </form>
+
+        <div class="border-top pt-3"> <!-- pt-3 padding top = 3 -->
+            <small class="text-muted">
+                Already Have An Account? <a class="ml-2" href="#">Sign In</a>
+            </small>
+        </div>
+    </div>
+{% endblock content %}

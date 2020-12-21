@@ -1,0 +1,24 @@
+<!-- ist genau gleich wie home.html nur ohne loop weil nur ein eintrag angezeigt wird -->
+<!-- der context (also dateninhalt) wird strd. mäßig objec genannt, wenn bei classbasedview kein name angegeben wird -->
+{% extends "blog/base.html" %}
+{% block content %}
+  <article class="media content-section">
+    <img class="rounded-circle article-img" src="{{ object.author.profile.image.url }}">
+    <div class="media-body">
+      <div class="article-metadata">
+        <a class="mr-2" href="#">{{ object.author }}</a>
+        <small class="text-muted">{{ object.date_posted|date:"F d, Y" }}</small>
+        <!--Buttons nur für die entsprechenden user anzeigen-->
+        {% if object.author == user %}
+          <div>
+            <!-- button seoncdary ist der stle btn-sm = small button margin botom = 1-->
+            <a class="btn btn-secondary btn-sm mt-1 mb-1" href="{% url 'post-update' object.id %}">Update</a>
+            <a class="btn btn-danger btn-sm mt-1 mb-1" href="{% url 'post-delete' object.id %}">Delete</a>
+          </div>
+        {% endif %}
+      </div>
+      <h2 class="article-title">{{ object.title }}</h2>
+      <p class="article-content">{{ object.content }}</p>
+    </div>
+  </article>
+{% endblock content %}

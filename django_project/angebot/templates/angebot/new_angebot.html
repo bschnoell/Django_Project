@@ -1,0 +1,27 @@
+{% extends "blog/base.html" %}
+
+{% block content %}
+<br>
+    <form method="POST">
+        {% csrf_token %}
+        <table class="table table-bordered table-light">
+            {{kunde_form.as_table}}
+        </table>
+        <br>
+        <table class="table table-bordered table-light">
+            {{angebot_form.as_table}}
+        </table>
+        <br>
+        <table class="table table-bordered table-light">
+            {{objekt_form.as_table}}
+        </table>
+        <br>
+        <table class="table table-bordered table-light">
+            {% for form in raum_forms %}
+                {{form.as_table}}
+            {% endfor %}
+        </table>
+        <br>
+        <button type="submit" class="btn btn-warning float-right">Angebot speichern</button>
+    </form>
+{% endblock content %}

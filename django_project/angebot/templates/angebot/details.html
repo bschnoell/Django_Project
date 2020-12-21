@@ -1,0 +1,19 @@
+{% extends "blog/base.html" %}
+
+{% block content %}
+    <p>
+        <h3>{{angebot.titel}}</h3>
+    </p>
+    <div class="list-group col-md-6">
+    {% for raum in angebot.raeume %}
+        <a class="list-group-item" href="">
+            <span class="badge badge-pill badge-primary float-right">{{raum.flaeche}}</span>
+            {{raum.name}}
+        </a>
+        <!-- <p> ({{choice.votes}})</p> -->
+        {% empty %}
+        <div class="list-group-item">There is no Raum available for this Angebot.</div>
+        {% endfor %}
+    </div>
+    <br>
+{% endblock content %}

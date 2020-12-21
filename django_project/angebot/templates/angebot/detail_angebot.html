@@ -1,0 +1,17 @@
+<!-- ist genau gleich wie home.html nur ohne loop weil nur ein eintrag angezeigt wird -->
+<!-- der context (also dateninhalt) wird strd. mäßig objec genannt, wenn bei classbasedview kein name angegeben wird -->
+{% extends "blog/base.html" %}
+{% block content %}
+      <div class="article-metadata">
+        <a class="mr-2" href="#">{{ testkunde_list.vname }}</a>
+          <a class="mr-2" href="#">{{ testkunde_list.zahl1 }}</a>
+          <a class="mr-2" href="#">{{ testkunde_list.zahl2 }}</a>
+          <a class="mr-2" href="#">{{ testkunde_list.result }}</a>
+          <h2>Angebot:</h2>
+          {% for angebot in testangebotlist %}
+                    <h2><a class="article-title">{{ angebot.angebotname }}</a></h2>
+                    <h2><a class="article-title">{{ angebot.wert1 }}</a></h2>
+                    <h2><a class="article-title">{{ angebot.wert2 }}</a></h2>
+          {% endfor %}
+      </div>
+{% endblock content %}

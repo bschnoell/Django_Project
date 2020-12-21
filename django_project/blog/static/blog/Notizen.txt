@@ -1,0 +1,7 @@
+Superuser: berni
+mail: bernhard.schnoell@holztechnikum.at
+pwd: Mein pwd.
+
+User: josef
+pwd: testing321
+

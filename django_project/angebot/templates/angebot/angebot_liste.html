@@ -1,0 +1,39 @@
+{% extends "blog/base.html" %}
+
+{% block content %}
+    <p>
+        <h3>Angebotliste von {{user}}</h3>
+    </p>
+
+    <div class="table-responsive-sm">
+        {% if angebote %}
+            <table class="table table-bordered">
+                <thead class="thead-light">
+                    <tr>
+                        <th>Angebot</th>
+                        <th class="text-center">Aktionen
+                    </tr>
+                </thead>
+                <tbody>
+                {% for angebot in angebote %}
+                    <tr>
+                        <th scope="row">
+                            {{angebot.id}} -
+                            {{angebot.titel}} -
+                            {{angebot.datum_erstellt}}
+                        </td>
+                        <td class="text-center">
+                            <a class="btn btn-primary" href="{% url 'angebot:angebot_details' angebot.id %}">Detail</a>
+                            <a class="btn btn-warning" href="{% url 'angebot:angebot_edit' angebot.id %}">Ändern</a>
+                            <a class="btn btn-danger" href="{% url 'angebot:angebot_delete' angebot.id %}">Löschen</a>
+                        </td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+                </table>
+        {% else %}
+            <p>Hier ist kein Angebot verfügbar!</p>
+        {% endif%}
+    </div>
+
+{% endblock content %}
