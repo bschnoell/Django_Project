@@ -23,8 +23,8 @@ class Profile(models.Model):
     def __str__(self):
         return f'{self.user.username} Profile'
 
-    def save(self):
-        super().save()#strd save methode der vorigen klassen durchlaufen
+    def save(self, *args, **kwargs):
+        super().save(*args, **kwargs)#strd save methode der vorigen klassen durchlaufen
 
         img = Image.open(self.image.path)#img variable mit dem image der current instance belegen
 

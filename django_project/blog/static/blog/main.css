@@ -12,6 +12,10 @@ ul {
   margin: 0;
 }
 
+.bg-red {
+  background-color: #cf776B;
+}
+
 .bg-steel {
   background-color: #5f788a;
 }
@@ -27,6 +31,7 @@ ul {
 .site-header .navbar-nav .nav-link.active {
   font-weight: 500;
 }
+
 
 .content-section {
   background: #ffffff;

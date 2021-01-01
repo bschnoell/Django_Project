@@ -4,22 +4,66 @@
 <br>
     <form method="POST">
         {% csrf_token %}
-        <table class="table table-bordered table-light">
-            {{kunde_form.as_table}}
+        <table class="table table-bordered">
+                <thead class="thead-dark">
+                    <tr>
+                        <th>Kunde</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                     {{kunde_form.as_table}}
+                </tbody>
         </table>
         <br>
-        <table class="table table-bordered table-light">
-            {{angebot_form.as_table}}
+        <table class="table table-bordered">
+                <thead class="thead-dark">
+                    <tr>
+                        <th>Angebot</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                     {{angebot_form.as_table}}
+                </tbody>
         </table>
         <br>
-        <table class="table table-bordered table-light">
-            {{objekt_form.as_table}}
+        <table class="table table-bordered">
+                <thead class="thead-dark">
+                    <tr>
+                        <th>Objekt</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                     {{objekt_form.as_table}}
+                </tbody>
         </table>
         <br>
-        <table class="table table-bordered table-light">
-            {% for form in raum_forms %}
-                {{form.as_table}}
-            {% endfor %}
+        <table class="table table-bordered">
+                <thead class="thead-dark">
+                    <tr>
+                        <th>Räume</th>
+                        <th></th>
+                        <th></th>
+                        <th></th>
+                        <th></th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                {% for raum in raum_forms  %}
+                    <tr>
+
+                            <td>{{ raum.name.label_tag }}{{ raum.name }}</td>
+                            <td>{{ raum.hoehe.label_tag }}{{ raum.hoehe }}</td>
+                            <td>{{ raum.flaeche.label_tag }}{{ raum.flaeche }}</td>
+                            <td>{{ raum.anzfenster.label_tag }}{{ raum.anzfenster }}</td>
+                            <td>{{ raum.anzaussenflaechen.label_tag }}{{ raum.anzaussenflaechen }}</td>
+                            <td>{{ raum.alternative.label_tag }}{{ raum.alternative }}</td>
+                    </tr>
+                {% endfor %}
+                </tbody>
         </table>
         <br>
         <button type="submit" class="btn btn-warning float-right">Angebot speichern</button>

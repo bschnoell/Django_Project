@@ -98,6 +98,7 @@ class AngebotView(View):
         kunde_form = KundeForm(request.POST, instance=Test_Kunde())
         angebot_form = AngebotForm(request.POST, instance=Test_Angebot())
         objekt_form = ObjektForm(request.POST, instance=Test_Objekt())
+       # print('Baustoff:', objekt_form.cleaned_data.get('baustoff'))
         raum_forms = [RaumForm(request.POST, prefix=str(
             x), instance=Test_Raum()) for x in range(0, 3)]
 
@@ -116,7 +117,6 @@ class AngebotView(View):
           #  new_angebot.titel = angebot_form.cleaned_data.get('titel')
             new_angebot.save()
 
-
             new_objekt = objekt_form.save(commit=False)
             new_objekt.angebotid = new_angebot#Fremdschlüssel der gerade gespeicherte Kunde
             new_objekt.save()
@@ -124,6 +124,7 @@ class AngebotView(View):
             for cf in raum_forms:
                 new_raum = cf.save(commit=False)
                 new_raum.objektid = new_objekt
+                new_raum.anzS, new_raum.anzM, new_raum.anzL  = self.get_anz_heizkoerper(new_raum, new_objekt)
                 new_raum.save()
 
             messages.success(request, 'Angebot wurde gespeichert!')
@@ -179,6 +180,7 @@ class AngebotView(View):
 
             for rf in raum_forms:
                 new_raum = rf.save(commit=False)
+                new_raum.anzS, new_raum.anzM, new_raum.anzL  = self.get_anz_heizkoerper(new_raum, new_objekt)
                 new_raum.save()
 
             messages.success(request, 'Angebot wurde erfolgreich geändert!')
@@ -202,23 +204,117 @@ class AngebotView(View):
         #return HttpResponseRedirect('angebot:angebot_liste')
         #return redirect('angebot:angebot_liste')
 
+#Berechnung des ERS Algorithmus
+    def get_anz_heizkoerper(self, l_raum, l_objekt):
+
+        # Eingabewerte
+        raumhoehe = l_raum.hoehe  # in meter
+        raumflaeche = l_raum.flaeche  # in qm
+        anzfenster = l_raum.anzfenster
+        anzaussenwaende = l_raum.anzaussenflaechen
+        staerkedaemmung = l_objekt.dickedaemmung  # in cm
+        staerkeaussenwand = l_objekt.dickeaussenwand  # in cm
+
+        # Fixwerte
+        #mit get bekommt man immer nur einen eintrag
+        q_aufschlagfenster = t_config.objects.get(art='aufschlagfenster')
+        q_aufschlagwaende = t_config.objects.get(art='aufschlagwaende')
+        q_aufschlagueberdimensionierung = t_config.objects.get(art='aufschlagueberdimensionierung')
+        q_abschlagdaemmung = t_config.objects.get(art='abschlagdaemmung')
 
 
+        aufschlagfenster = q_aufschlagfenster.wert  # 5%
+        aufschlagwaende = q_aufschlagwaende.wert  # 5%
+        aufschlagueberdimensionierung = q_aufschlagueberdimensionierung.wert  # 10%
+        abschlagdaemmung = q_abschlagdaemmung.wert  # 2%
+
+
+        # uwert Berechnung - je nach Bauweise:
+
+        #ID/PK von Baustoff wird direkt in Objekt tabelle gespeichert, funktioniert über choices feld
+        #in model.forms von objekt...
+        q_baustoff = Test_Baustoff.objects.get(id=l_objekt.baustoff)
+
+        lambdabaustoff = q_baustoff.lambdawert
+        # lambdabaustoff = l_objekt.baustoffid.lambdawert #alte berechnung
+
+        uwert = (1 - 0.02 * staerkedaemmung) * lambdabaustoff / staerkeaussenwand
+
+        # Berechnung Raumvolumen
+        raumvolumen = raumhoehe * raumflaeche
+
+        if uwert < 1.5:
+            aufschlaguwert = 0
+        elif uwert > 1.5 and uwert < 2.0:
+            aufschlaguwert = 0.05
+        elif uwert > 2.0 and uwert < 2.5:
+            aufschlaguwert = 0.1
+        elif uwert > 2.5 and uwert < 3.5:
+            aufschlaguwert = 0.15
+        elif uwert > 3.5:
+            aufschlaguwert = 0.2
+        else:
+            print("kann uwert nicht berechnen")
+
+        # prozentualen gesamtaufschlag berechnen
+        gesamtaufschlag = (anzfenster * aufschlagfenster) + \
+                          (anzaussenwaende * aufschlagwaende) + \
+                          aufschlaguwert + aufschlagueberdimensionierung - \
+                          (abschlagdaemmung * staerkedaemmung)
+
+        # volumenäquivalent
+        volumenaequivalent = raumvolumen + raumvolumen * gesamtaufschlag
+
+        anzS = 0
+        anzM = 0
+        anzL = 0
+
+        while volumenaequivalent > 0:
+            print("volaequ.: ", volumenaequivalent)
+            if volumenaequivalent < 0:
+                break
+            elif volumenaequivalent <= 20:
+                anzS = anzS + 1
+                volumenaequivalent = volumenaequivalent - 20
+            elif volumenaequivalent <= 50:
+                anzM = anzM + 1
+                volumenaequivalent = volumenaequivalent - 50
+            elif volumenaequivalent >= 50:
+                anzL = anzL + 1
+                volumenaequivalent = volumenaequivalent - 75
+
+        if l_raum.alternative:
+            if anzS == 1 and anzL > 0:
+                anzS = anzS - 1
+                anzL = anzL - 1
+                anzM = anzM + 2
+
+        return anzS, anzM, anzL
 
 @login_required
 def index(request):
     context = {}
     angebote = Test_Angebot.objects.all()
-    context['title'] = 'titel'
+   # angebote = Test_Angebot.objects.filter(userid=request.user)
     context['angebote'] = angebote
     return render(request, 'angebot/angebot_index.html', context)
 
+
+
 @login_required
 def liste(request):
+#TODO: Dashboard mit Count Angebot und Kunden umdesignen siehe Mail in  HTK Django Ordern mit Yutube Link
+
+#TODO: entweder FILTER deklarieren oder queryset von kunden drüberloopen
+#und nur angebote des Kunden verwenden
+
     context = {}
+
+  #  kunden_liste  = Test_Kunde.objects.filter(userid=request.user)
     angebote = Test_Angebot.objects.all()
-    context['title'] = 'titel'
+
     context['angebote'] = angebote
+  #  context['kunden'] = kunde
     return render(request, 'angebot/angebot_liste.html', context)
 
 # TODO: Rechner integrieren
@@ -227,9 +323,9 @@ def rechner(request):#wird in urls.py aufgerufen
     return render(request, 'angebot/angebot_rechner.html', {'title': 'Rechner'}) #das dritte Argument ist der Titel der im HTML File angezeigt wird
 
 
-
 @login_required
 def details(request, id=None):
+    # TODO: Details genauer ausprogrammieren
     context = {}
     try:
         angebot = Test_Angebot.objects.get(id=id)

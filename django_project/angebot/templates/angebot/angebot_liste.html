@@ -11,10 +11,21 @@
                 <thead class="thead-light">
                     <tr>
                         <th>Angebot</th>
-                        <th class="text-center">Aktionen
-                    </tr>
+                        <th class="text-center">Aktionen</tr>
                 </thead>
                 <tbody>
+                {% for kunde in kunden %}
+                    <tr>
+                        <th scope="row">
+                            {{kunde.id}} -
+                            {{kunde.kunde}} -
+                        </td>
+                        <td class="text-center">
+                            <a class="btn btn-primary" href="asasdasdf">Detail</a>
+                        </td>
+                    </tr>
+                {% endfor %}
+
                 {% for angebot in angebote %}
                     <tr>
                         <th scope="row">

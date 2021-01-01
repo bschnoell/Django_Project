@@ -6,7 +6,6 @@ from .forms import UserRegisterForm, UserUpdateForm, ProfileUpdateForm
 #Decoratoren sind dazu da um für existierende Funktionen zusätzliche Funtionen hinzuzufügen
 from django.contrib.auth.decorators import login_required #login decorator importieren
 
-
 #view für Register
 def register(request):
     # wenn POST kommt dann wird der User gespeichert, wenn nur Get kommt dann nur die Seite anzeigen
@@ -56,8 +55,3 @@ def profile(request):
     }
 
     return render(request, 'users/profile.html', context)
-
-
-
-
-

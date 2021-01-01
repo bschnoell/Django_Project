@@ -2,6 +2,11 @@ from django.db import models
 from django.utils import timezone
 from django.urls import reverse
 from django.contrib.auth.models import User
+from django import forms
+
+#TODO: Erstellt Datum hinzufügen
+#TODO: Status bei Angebot
+#TODO: Rabatt bei Angebot
 
 class Test_Kunde(models.Model):
     userid = models.ForeignKey(User, on_delete=models.CASCADE, blank=True, null=True)
@@ -25,6 +30,15 @@ class Test_Bauweise(models.Model):
 class Test_Baustoff(models.Model):
     art = models.CharField(max_length=100)
     wert = models.IntegerField(default='0')
+    lambdawert  = models.FloatField(default=0)
+
+class t_config(models.Model):
+    art = models.CharField(max_length=100)
+    wert = models.FloatField(default='0')
+
+class t_lambda(models.Model):
+    art = models.CharField(max_length=100)
+    wert = models.FloatField(default='0')
 
 class Test_Angebot(models.Model):
     BOOL_CHOICES = ((True, 'offen'), (False, 'abgeschlossen'))
@@ -41,19 +55,25 @@ class Test_Angebot(models.Model):
     def get_absolute_url(self):
         return reverse('angebot_details', kwargs={'pk': self.pk})
 
+
+
 class Test_Objekt(models.Model):
 
     BOOL_CHOICES = ((True, 'Yes'), (False, 'No'))
 
     angebotid = models.ForeignKey(Test_Angebot, on_delete=models.CASCADE)
-    baustoffid = models.ForeignKey(Test_Baustoff, on_delete=models.CASCADE)
-    bauweiseid = models.ForeignKey(Test_Bauweise, on_delete=models.CASCADE)
+    #baustoffid = models.ForeignKey(Test_Baustoff, on_delete=models.CASCADE)#alt
+    #baustoffid = models.IntegerField(default=0)#alt
+    #TODO: bauweiseid noch umschreiben - wie baustoff id choose feld machen
+    #bauweiseid = models.ForeignKey(Test_Bauweise, on_delete=models.CASCADE)
 
+    #baustofffeld wird über das choices feld in models gespeichert
+    baustoff = models.IntegerField(default=0)
     bezeichnung = models.CharField(max_length=100, default='', blank=True)
     dickeaussenwand = models.IntegerField(default='0', blank=True, null=True)
     dickedaemmung = models.IntegerField(default='0')
     uwert = models.IntegerField(default='0')
-    fensterqualitaet = models.BooleanField(choices=BOOL_CHOICES, default=False)
+    fensterqualitaet = models.BooleanField(choices=BOOL_CHOICES, default=True)
 
 class Test_Raum(models.Model):
 
@@ -63,11 +83,13 @@ class Test_Raum(models.Model):
     hoehe = models.IntegerField(default='0')
     flaeche = models.IntegerField(default='0')
     anzfenster = models.IntegerField(default='0')
-    anzaussenfenster = models.IntegerField(default='0')
+    # das Feld gehört noch gelöscht!!!
+    anzaussenfenster = models.IntegerField(default='0')#das Feld gehört noch gelöscht!!!
+    anzaussenflaechen = models.IntegerField(default='0')
     alternative = models.BooleanField(choices=BOOL_CHOICES, default=False)
-    s = models.IntegerField(default='0')
-    m = models.IntegerField(default='0')
-    l = models.IntegerField(default='0')
+    anzS = models.IntegerField(default='0')
+    anzM = models.IntegerField(default='0')
+    anzL = models.IntegerField(default='0')
     es980 = models.IntegerField(default='0')
     es981 = models.IntegerField(default='0')
     es982 = models.IntegerField(default='0')

@@ -22,7 +22,7 @@ urlpatterns = [
     path('<int:id>/details/', angebot_views.details, name="angebot_details"),
     path('rechner/', angebot_views.rechner, name='angebot_rechner'),
 ]
-#TODO: Gibthub naschauen
+
 #TODO: PDF Angebot Creation anschauen
 
 """
