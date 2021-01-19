@@ -1,0 +1,62 @@
+﻿
+/* Buttons */
+
+body a.button-rot, button.submit, .button-rot a {
+	position: relative;
+	text-align: center;
+	text-decoration: none;
+	font-size: 20px;
+	border: 2px solid #cf776B;
+	background-color: #cf776B;
+	color: #fff;
+	border-radius: 15px;
+	padding: 15px 40px 15px 40px;
+	-webkit-transition: all 0.5s ease;
+	-moz-transition: all 0.5s ease;
+	-o-transition: all 0.5s ease;
+	transition: all 0.5s ease;
+	font-weight: 600;
+}
+
+a.button-weiss {
+	position: relative;
+	text-align: center;
+	text-decoration: none;
+	font-size: 20px;
+	border: 2px solid #fff;
+	border-radius: 15px;
+	padding: 15px 35px 15px 35px;
+	-webkit-transition: all 0.5s ease;
+	-moz-transition: all 0.5s ease;
+	-o-transition: all 0.5s ease;
+	transition: all 0.5s ease;
+	font-weight: 600;
+}
+
+a.button-weiss-sm {
+	position: relative;
+	text-align: center;
+	text-decoration: none;
+	font-size: 18px;
+	border: 2px solid #fff;
+	border-radius: 30px;
+	padding: 10px 20px 10px 20px;
+	-webkit-transition: all 0.5s ease;
+	-moz-transition: all 0.5s ease;
+	-o-transition: all 0.5s ease;
+	transition: all 0.5s ease;
+	font-weight: 600;
+}
+
+a.button-weiss:hover, a.button-weiss.weiss-hg:hover, body a.button-rot:hover, body .button-rot a:hover, .widget.widget-submit button.submit:hover, a.button-weiss-sm:hover, a.button-weiss-sm.weiss-hg:hover  {
+	text-decoration: none;
+	box-shadow: 0px 0px 25px #ccc;
+	cursor: pointer;
+}
+
+a.button-weiss.weiss-hg, a.button-weiss-sm.weiss-hg {
+	background-color: #fff;
+	color: #cf776B;
+	margin-right: 20px;
+}
+

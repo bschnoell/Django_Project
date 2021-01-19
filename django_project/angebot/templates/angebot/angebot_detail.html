@@ -3,22 +3,148 @@
     <p>
         <h3>Angebot: {{angebot.titel}}</h3>
     </p>
-    <div class="list-group-item">
-        Kunde: {{kunde.kunde}}
-    </div>
-    <div class="list-group-item">
-        Angebot: {{angebot.titel}}
-    </div>
-    <div class="list-group-item">
-        Objekt: {{objekt.bezeichnung}}
-    </div>
-    {% for raum in raeume %}
-        <a class="list-group-item" href="">
-            <span class="badge badge-pill badge-primary float-right">asdf</span>
-            Raum: {{raum.name}}
-        </a>
-    {% endfor %}
 
-    <br>
+       <table class="table table-bordered table-hover table-md">
+                 <thead class="hg-rot schrift-weiss">
+                    <tr>
+                        <th colspan="6">Kunde</th>
+                    </tr>
+                </thead>
+                <tbody>
+                     <tr>
+                         <td>Kunde: </td> <td colspan="1">{{ kunde.kunde }}</td>
+                         <td>Kunden Nr.: </td> <td colspan="4">{{ kunde.id }}</td>
+                     </tr>
+                     <tr>
+                        <td>Plz.: </td> <td> {{ kunde.plz }}</td>
+                        <td>Ort: </td> <td> {{ kunde.ort }}</td>
+                        <td>Straße: </td> <td> {{ kunde.strasse }}</td>
+                     </tr>
+                     <tr>
+                        <td>Tel.Nr.: </td> <td> {{ kunde.telefonnr }}</td>
+                        <td>E-Mail: </td> <td colspan="4"> {{ kunde.mail }}</td>
+                     </tr>
+                     <tr>
+                        <td>Stromkosten: </td> <td> {{ kunde.stromkosten }}€</td>
+                        <td>Heiztage: </td> <td> {{ kunde.heiztage }}</td>
+                        <td>gewünschte Raumtemp.: </td> <td>{{ kunde.raumtemp}}°</td>
+                     </tr>
+                </tbody>
+            </table>
+        <br>
 
+         <table class="table table-bordered table-hover table-md">
+                <thead class="hg-rot schrift-weiss">
+                    <tr>
+                        <th colspan="4">Objekt</th>
+                    </tr>
+                </thead>
+                <tbody>
+                <!--
+                    <tr>
+                         <td>{{ objekt_form.bezeichnung.label_tag }}</td> <td colspan="3">{{ objekt_form.bezeichnung }}</td>
+                    </tr>
+                -->
+                    <tr>
+                        <td>Baustoff: </td> <td>{{ objekt.baustoff }}</td>
+                        <td>Bauweise: </td> <td>{{ objekt.bauweiseid }}</td>
+                    </tr>
+                    <tr>
+                        <td>Dicke Außenwand: </td> <td>{{ objekt.dickeaussenwand }} in cm</td>
+                        <td>Dicke Dämmung: </td> <td>{{ objekt.dickedaemmung }} in cm</td>
+                    </tr>
+                    <tr>
+                         <td>Fensterqualität: </td> <td colspan="3">{{ objekt.fensterqualitaet }}</td>
+                    </tr>
+                </tbody>
+        </table>
+
+
+    <table class="table table-bordered table-hover table-md">
+                 <thead class="hg-rot schrift-weiss">
+                    <tr>
+                        <th>Räume</th>
+                        <th></th>
+                <tbody>
+       {% for raum in raeume %}
+                <tr>
+                    <td>Raum: {{raum.name}}</td>
+                    <td>
+                        {% if raum.anzS != 0 %}
+                             #-Small: {{raum.anzS}}
+                        <br>
+                        {% endif %}
+                        {% if raum.anzM != 0 %}
+                             #-Medium: {{raum.anzM}}
+                        <br>
+                        {% endif %}
+                        {% if raum.anzL != 0 %}
+                             #-Large: {{raum.anzL}}
+                        <br>
+                        {% endif %}
+                    </td>
+                </tr>
+            {% endfor %}
+                </tbody>
+        </table>
+
+    <div class="alert alert-primary" role="alert">
+        Die Heizkostenberechnung beruht auf Erfahrungswerten bei trockener Bausubstanz.
+        Wenn dies nicht auf die Expertise eines Bausachverständigen gestützt ist,
+        kann im Mauerkern dennoch Feuchtigkeit vorhanden sein. Bis diese ausgetrocknet ist,
+        kann der Verbrauch zu Anfang noch schwanken.
+    </div>
+
+    <table class="table table-bordered table-hover table-md">
+                <thead class="hg-rot schrift-weiss">
+                    <tr>
+                        <th colspan="5">Heizkostenabschätzung</th>
+                    </tr>
+
+                            <tr>
+                                <th>Geschätzter Energiebedarf</th>
+                                <th>KWh/Jahr/m³</th>
+                                <th>kWh/Jahr Gesamt</th>
+                                <th>Heizkosten/Jahr</th>
+                                <th>Heizkosten/Monat</th>
+                            </tr>
+                </thead>
+                <tbody>
+                {% if heizkostenabschaetzung_ges %}
+                    <tr>
+                            <td>milder Winter</td>
+                            <td>{{ heizkostenabschaetzung_ges.kwh_jahr_m3_mild }}</td>
+                            <td>{{ heizkostenabschaetzung_ges.kwh_jahr_mild }}</td>
+                            <td>{{ heizkostenabschaetzung_ges.heizkosten_jahr_mild }} €</td>
+                            <td>{{ heizkostenabschaetzung_ges.heizkosten_monat_mild }}  €</td>
+                    </tr>
+                    <tr>
+                            <td>normaler Winter</td>
+                            <td>{{ heizkostenabschaetzung_ges.kwh_jahr_m3_normal }}</td>
+                            <td>{{ heizkostenabschaetzung_ges.kwh_jahr_normal }}</td>
+                            <td>{{ heizkostenabschaetzung_ges.heizkosten_jahr_normal }} €</td>
+                            <td>{{ heizkostenabschaetzung_ges.heizkosten_monat_normal }} €</td>
+                    </tr>
+                    <tr>
+                            <td>strenger Winter</td>
+                            <td>{{ heizkostenabschaetzung_ges.kwh_jahr_m3_streng }}</td>
+                            <td>{{ heizkostenabschaetzung_ges.kwh_jahr_streng }}</td>
+                            <td>{{ heizkostenabschaetzung_ges.heizkosten_jahr_streng }} €</td>
+                            <td>{{ heizkostenabschaetzung_ges.heizkosten_monat_streng }} €</td>
+                    </tr>
+                {% else %}
+                    Es konnten keine Heizkosten berechnet werden.
+                {% endif %}
+
+                </tbody>
+        </table>
+
+        <br>
+        <p><a class="button-rot btn-block"  title="Angebot Drucken" href="{% url 'angebot:angebot_pdf'  angebot.id %}">Angebot Drucken</a></p>
+
+        <a class="btn-rot-weiss float-right" href="{% url 'angebot:angebot_edit' angebot.id %}">Angebot Ändern</a>
+        <br>
+        <br>
+        <br>
+        <br>
 {% endblock content %}

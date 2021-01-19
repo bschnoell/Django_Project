@@ -1,0 +1,32 @@
+
+/* Hover unterstrichen */
+.a.unterstricheffekt_rot,
+ a {
+	position: relative;
+    bottom: 0px;
+    border: 1px solid #fff;
+    top: auto;
+	color: black;
+}
+
+.unterstricheffekt_rot a:after
+ {
+	content: "";
+	left: 0px;
+	position: absolute;
+	pointer-events: none;
+	opacity: 0;
+	-webkit-transition: all 0.3s ease-in-out;
+	-moz-transition: all 0.3s ease-in-out;
+	-o-transition: all 0.3s ease-in-out;
+	transition: all 0.3s ease-in-out;
+	border: 1px solid #cf776B;
+	width: 0%;
+	top: 20px;
+	color: black;
+}
+
+.unterstricheffekt_rot a:hover:after {
+	opacity: 1;
+	width: 94%;
+}

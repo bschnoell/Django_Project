@@ -1,0 +1,122 @@
+{% extends "blog/base.html" %}
+
+{% block content %}
+<!--
+<div class="table-responsive-sm">
+ <a class="btn btn-primary  btn-lg btn-block" href="{% url 'angebot:angebot_add'%}">Angebot anlegen</a>
+</div>
+-->
+
+<p><br><a class="button-rot btn-block"  title="Angebot anlegen" href="{% url 'angebot:angebot_add'%}">Angebot anlegen</a></p>
+<!--
+<p><br><a class="button-weiss weiss-hg btn-lg btn-block"  title="Angebot anlegen" href="{% url 'angebot:angebot_add'%}">Angebot anlegen</a></p>
+-->
+
+<div class="hg-rot schrift-weiss">
+    test
+</div>
+
+{%  include 'angebot/dashboard_angebot_status.html' %}
+
+    <div class="table-responsive-sm">
+        {% if kunden %}
+            <table class="table table-bordered table-hover table-md">
+                 <thead class="hg-rot schrift-weiss">
+                    <tr>
+                        <th>Kunde</th>
+                        <th>Angebot</th>
+                        <th>Erstelldatum</th>
+                        <th>Aktionen</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+
+                  <tbody>
+                     {% for kunde in kunden %}
+                    <tr>
+                            <td>{{kunde.kunde}}</td>
+                                {% for angebot in kunde.test_angebot_set.all %}
+                                    <td> {{ angebot.titel }} </td>
+                                    <td>{{ angebot.datum_erstellt }}</td>
+                                    <td>
+                                        <a class="btn-rot-weiss-small" href="{% url 'angebot:angebot_details' angebot.id %}">Detail</a>
+                                        <a class="btn-rot-weiss-small" href="{% url 'angebot:angebot_edit' angebot.id %}">Ändern</a>
+                                       <!-- <a class="btn-rot-weiss-small" href="{% url 'angebot:angebot_delete' angebot.id %}">Löschen</a> -->
+                                    </td>
+                                    <td>{{ angebot.status }}</td>
+                                {% endfor %}
+                    </tr>
+                    {% endfor %}
+                </tbody>
+
+                </table>
+        {% else %}
+            <p>Keine Kunden verfügbar!</p>
+        {% endif%}
+    </div>
+
+
+
+
+
+    <p>
+        <h3>Angebotliste von {{user}}</h3>
+    </p>
+
+    <div class="table-responsive-sm">
+        {% if angebote %}
+            <table class="table table-bordered">
+                 <thead class="thead-dark">
+                    <tr>
+                        <th>Angebot</th>
+                        <th>Aktionen</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+
+                  <tbody>
+                     {% for angebot in angebote %}
+                    <tr>
+
+                            <td>{{angebot.id}} -
+                                {{angebot.titel}} -
+                                {{angebot.datum_erstellt}}
+                            </td>
+
+                            <td><a class="btn btn-primary" href="{% url 'angebot:angebot_details' angebot.id %}">Detail</a>
+                                <a class="btn btn-warning" href="{% url 'angebot:angebot_edit' angebot.id %}">Ändern</a>
+                                <a class="btn btn-danger" href="{% url 'angebot:angebot_delete' angebot.id %}">Löschen</a>
+                            </td>
+                            <td>{{angebot.status}}</td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+
+
+
+
+<!--
+                <tbody>
+                {% for angebot in angebote %}
+                    <tr>
+                        <th scope="row">
+                            {{angebot.id}} -
+                            {{angebot.titel}} -
+                            {{angebot.datum_erstellt}}
+                        </td>
+                        <td class="text-center">
+                            <a class="btn btn-primary" href="{% url 'angebot:angebot_details' angebot.id %}">Detail</a>
+                            <a class="btn btn-warning" href="{% url 'angebot:angebot_edit' angebot.id %}">Ändern</a>
+                            <a class="btn btn-danger" href="{% url 'angebot:angebot_delete' angebot.id %}">Löschen</a>
+                        </td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+                -->
+                </table>
+        {% else %}
+            <p>Hier ist kein Angebot verfügbar!</p>
+        {% endif%}
+    </div>
+
+{% endblock content %}

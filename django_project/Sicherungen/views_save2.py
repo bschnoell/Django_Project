@@ -2,21 +2,17 @@ from django.shortcuts import render, redirect, reverse, get_object_or_404
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
-from .forms import KundeCreationForm
+from django_project.angebot.forms import KundeCreationForm
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required #login decorator importieren
 from django.views.generic import View
 from django.views.decorators.csrf import csrf_exempt
 
-from django.http import HttpResponseRedirect, HttpResponse, Http404
+from django.http import HttpResponseRedirect, Http404
 from django.contrib.auth.decorators import login_required
-from django.contrib.auth.decorators import user_passes_test
 from django.utils.decorators import method_decorator
-from .forms import *
-from .models import *
-#Imports für PDF Erzeugung
-from .utils import *
-from django.template.loader import get_template
+from django_project.angebot.forms import *
+from django_project.angebot.models import *
 
 from django.views.generic import (
     DetailView,
@@ -25,23 +21,10 @@ from django.views.generic import (
     UpdateView
 )
 
-def richtiger_user_test_func(self):
-    # über self-getObj bekommt man das aktuelle Post objekt mit dem man dann arbeiten kann
-    angebot = self.get_object()
-    if self.request.user == angebot.kundenid.userid:
-        return True
-    # durch einrückung ist return false der else zweig
-    return False
-
-#TODO: UserPassesTestMixin oder Decorator hier noch integrieren wie bei Blog Post View
-#damit man nur seine eigenen angebote ändern / Läschen kann
-#TODO: isValid function umschreiben und Pflichtfelder prüfen
-
 class AngebotView(View):
     decorators = [login_required]
 
     @method_decorator(decorators)
-  #  @user_passes_test(richtiger_user_test_func)
     def get(self, request, id=None):
         print("get Eingang")
         if id:#wenn ID = True dann Änderen EDIT VIEW
@@ -76,20 +59,17 @@ class AngebotView(View):
 
         else:#Wenn ID = None, Forms rendern für neuen Datensatz eingeben
             print("get - ID ist leer - neue Formen erzeugen")
-            kunde_form = KundeForm(instance=Test_Kunde())
+            kunde_form = KundeCreationForm(instance=Test_Kunde())
             angebot_form = AngebotForm(instance=Test_Angebot())
             objekt_form = ObjektForm(instance=Test_Objekt())
-            #TODO: Räume dynamisch hinzufügen und entfernen
             raum_forms = [RaumForm(prefix=str(
-                x), instance=Test_Raum()) for x in range(2)]
+                x), instance=Test_Raum()) for x in range(3)]
             template = 'angebot/new_angebot.html'
-
 
         context = {'kunde_form': kunde_form ,'angebot_form': angebot_form,
                    'objekt_form': objekt_form, 'raum_forms': raum_forms}
         return render(request, template, context)
 
-#TODO: Neues Angebot- bereits angelegte Kunden auswählen oder neuen Kunden anlegen
 
     @method_decorator(decorators)
     def post(self, request, id=None): # Post = Speichern/Ändern
@@ -104,9 +84,8 @@ class AngebotView(View):
         kunde_form = KundeForm(request.POST, instance=Test_Kunde())
         angebot_form = AngebotForm(request.POST, instance=Test_Angebot())
         objekt_form = ObjektForm(request.POST, instance=Test_Objekt())
-       # print('Baustoff:', objekt_form.cleaned_data.get('baustoff'))
         raum_forms = [RaumForm(request.POST, prefix=str(
-            x), instance=Test_Raum()) for x in range(0, 2)]
+            x), instance=Test_Raum()) for x in range(0, 3)]
 
         #wenn die Eingabe der Formen passt
         if kunde_form.is_valid() and angebot_form.is_valid() \
@@ -119,36 +98,22 @@ class AngebotView(View):
             new_kunde.save()
 
             new_angebot = angebot_form.save(commit=False)
-            #Da Angebot-Form nicht mehr in HTML Template gerendert wird, den Titel für das ANgebot setzen und speichern
-            new_angebot.titel = 'Angebot ' + new_kunde.kunde
             new_angebot.kundenid = new_kunde#Fremdschlüssel der gerade gespeicherte Kunde
+            new_angebot.titel = angebot_form.cleaned_data.get('titel')
             new_angebot.save()
 
+
             new_objekt = objekt_form.save(commit=False)
-            new_objekt.bezeichnung = 'Obekt ' + new_kunde.kunde
             new_objekt.angebotid = new_angebot#Fremdschlüssel der gerade gespeicherte Kunde
             new_objekt.save()
 
             for cf in raum_forms:
                 new_raum = cf.save(commit=False)
                 new_raum.objektid = new_objekt
-                new_raum.anzS, new_raum.anzM, new_raum.anzL, volumenaequivalent  = get_anz_heizkoerper(new_raum, new_objekt)
                 new_raum.save()
 
-                #3 Einträge für jeden Raum anlegen
-                l_winter = ['mild', 'normal', 'streng']
-                for el in l_winter:
-                    new_heizkostenabschaetzungraum = T_Heizkostenabschaetzung_Raum(winter=el)
-                    new_heizkostenabschaetzungraum.raum = new_raum
-
-                    new_heizkostenabschaetzungraum.heizkosten_monat, \
-                    new_heizkostenabschaetzungraum.heizkosten_jahr, \
-                    new_heizkostenabschaetzungraum.kwh_jahr_m3, \
-                    new_heizkostenabschaetzungraum.kwh_jahr = get_heizkostenabschaetzung(new_kunde, new_raum, new_objekt, el, volumenaequivalent)
-                    new_heizkostenabschaetzungraum.save()
-
             messages.success(request, 'Angebot wurde gespeichert!')
-            return HttpResponseRedirect(reverse('angebot:angebot_details', kwargs={'id': new_angebot.id}))
+            return HttpResponseRedirect('/angebot/liste/')
 
         else:
             print("kunde:", kunde_form.errors)
@@ -162,7 +127,6 @@ class AngebotView(View):
 
         return render(request, 'angebot/new_angebot.html', context)
 
-#TODO Überall try catch Fehlerbehandlung implementieren.. bei Udate und filter etc..
 
     @method_decorator(decorators)
     def put(self, request, id=None): #vorhandenen Datensatz ändern
@@ -199,55 +163,33 @@ class AngebotView(View):
             new_objekt = objekt_form.save(commit=False)
             new_objekt.save()
 
-#TODO Heizkostenberechnung Gesmat implementieren
-#TODO Heizkostenberechnug visualisieren
-
             for rf in raum_forms:
                 new_raum = rf.save(commit=False)
-                #Wenn checkbox = angehackelt, dann die Berechnung nicht in die Räume übernehmen, da die Berechnung manuell überschrieben wurde
-                #Aber das Volumenäquivalent muss schon berechnet werden
-                if new_raum.anzManuellUeberschrieben == False:
-                    new_raum.anzS, new_raum.anzM, new_raum.anzL, volumenaequivalent  = get_anz_heizkoerper(new_raum, new_objekt)
-                else:
-                    #in temp_x wird der Wert übernommen, aber nicht weiter verwendet
-                    temp_x, temp_x, temp_x, volumenaequivalent  = get_anz_heizkoerper(new_raum, new_objekt)
-
                 new_raum.save()
 
-                # 3 Einträge für jeden Raum ändern
-                l_winter = ['mild', 'normal', 'streng']
-                for el in l_winter:
-                    heizkosten_monat, \
-                    heizkosten_jahr, \
-                    kwh_jahr_m3, \
-                    kwh_jahr = get_heizkostenabschaetzung(new_kunde, new_raum, new_objekt, el, volumenaequivalent)
-
-                    T_Heizkostenabschaetzung_Raum.objects.filter(raum=new_raum, winter=el).update(
-                        heizkosten_monat=heizkosten_monat,
-                        heizkosten_jahr=heizkosten_jahr,
-                        kwh_jahr_m3=kwh_jahr_m3,
-                        kwh_jahr=kwh_jahr)
+            return redirect('angebot_liste')
 
             messages.success(request, 'Angebot wurde erfolgreich geändert!')
-            return HttpResponseRedirect(reverse('angebot:angebot_details', kwargs={'id': new_angebot.id}))
 
         else:
-            messages.warning(request, 'Eingabe - Invalid')
+            print("not valid")
+            print("kundeerr:", kunde_form.errors)
+            print("angeboterr:", angebot_form.errors)
+            print("objekterr", objekt_form.errors)
+            for rf in raum_forms:
+                print("raumerr:", rf.errors)
 
         context = {'angebot_form': angebot_form, 'kunde_form': kunde_form,
                    'objekt_form': objekt_form, 'raum_forms': raum_forms}
-
+        print("context gespeichert, jetzt render edit_angebot.html")
         return render(request, 'angebot/edit_angebot.html', context)
 
-# TODO: Delete testen und ausprogrammieren
+
     @method_decorator(decorators)
     def delete(self, request, id=None):
         angebot = get_object_or_404(Test_Angebot)
         angebot.delete()
-        return HttpResponseRedirect('/dashboard/') # redirect zu angebot
-        #return redirect('angebot_liste')
-        #return HttpResponseRedirect('angebot:angebot_liste')
-        #return redirect('angebot:angebot_liste')
+        return redirect('angebot_liste')
 
 
 
@@ -255,192 +197,46 @@ class AngebotView(View):
 def index(request):
     context = {}
     angebote = Test_Angebot.objects.all()
-   # angebote = Test_Angebot.objects.filter(userid=request.user)
+    context['title'] = 'titel'
     context['angebote'] = angebote
     return render(request, 'angebot/angebot_index.html', context)
 
 
 
-
-@login_required
-def dashboard(request):
-#TODO: Dashboard mit Count Angebot und Kunden siehe Mail in  HTK Django Ordern mit Yutube Link
-
-#TODO: entweder FILTER deklarieren oder queryset von kunden drüberloopen
-#und nur angebote des Kunden verwenden
-
-    context = {}
-    #eingeloggten benutzer auslesen
-    user = User.objects.get(username=request.user)
-
-    kunden = user.test_kunde_set.all()
-
-    anz_angebote_offen = 0
-    anz_angebote_verkauft = 0
-    anz_angebote_nicht_verkauft = 0
-    anz_angebote_gesamt = 0
-
-    for kunde in kunden:
-        anz_angebote_offen = anz_angebote_offen + kunde.test_angebot_set.filter(status='offen').count()
-        anz_angebote_verkauft = anz_angebote_verkauft + kunde.test_angebot_set.filter(status='verkauft').count()
-        anz_angebote_nicht_verkauft = anz_angebote_nicht_verkauft + kunde.test_angebot_set.filter(status='nicht verkauft').count()
-        anz_angebote_gesamt = anz_angebote_gesamt + kunde.test_angebot_set.all().count()
-
-  #  kunden_liste  = Test_Kunde.objects.filter(userid=request.user)
-   # angebote = Test_Angebot.objects.all()
-
-    context= {'kunden':kunden,
-              'anz_angebote_offen':anz_angebote_offen,
-              'anz_angebote_verkauft':anz_angebote_verkauft,
-              'anz_angebote_nicht_verkauft':anz_angebote_nicht_verkauft,
-              'anz_angebote_gesamt': anz_angebote_gesamt
-              }
-
-  #  context['kunden'] = kunde
-
-    return render(request, 'angebot/angebot_dashboard.html', context)
-
 @login_required
 def details(request, id=None):
-    # TODO: checken warum heizkostenberechnung KWh/Jahr/m³ doppelt so groß wie in Berechnungstool
     context = {}
     try:
         angebot = Test_Angebot.objects.get(id=id)
-        kunde = angebot.kundenid
-        # mit .get bekommt man nur einen Eintrag (könnte also bei mehreren Objeten zu einem Fehler führen)
-        objekt = Test_Objekt.objects.get(angebotid=angebot.id)
-        # mit .filter bekommt man ein queryset
-        raeume = Test_Raum.objects.filter(objektid=objekt.id)
-
-        heizkosten_monat_mild, heizkosten_monat_normal, heizkosten_monat_streng  = 0,0,0
-        heizkosten_jahr_mild, heizkosten_jahr_normal, heizkosten_jahr_streng = 0,0,0
-        kwh_jahr_m3_mild, kwh_jahr_m3_normal, kwh_jahr_m3_streng = 0,0,0
-        kwh_jahr_mild, kwh_jahr_normal, kwh_jahr_streng= 0,0,0
-
-        for raum in raeume:
-            heizkostenabschaetzungraume = raum.t_heizkostenabschaetzung_raum_set.all()
-
-            for heizkostenabschaetzungraum in heizkostenabschaetzungraume:
-                if heizkostenabschaetzungraum.winter == 'mild':
-                    heizkosten_monat_mild += heizkostenabschaetzungraum.heizkosten_monat
-                    heizkosten_jahr_mild += heizkostenabschaetzungraum.heizkosten_jahr
-                    kwh_jahr_m3_mild += heizkostenabschaetzungraum.kwh_jahr_m3
-                    kwh_jahr_mild += heizkostenabschaetzungraum.kwh_jahr
-                elif heizkostenabschaetzungraum.winter == 'normal':
-                    heizkosten_monat_normal += heizkostenabschaetzungraum.heizkosten_monat
-                    heizkosten_jahr_normal += heizkostenabschaetzungraum.heizkosten_jahr
-                    kwh_jahr_m3_normal += heizkostenabschaetzungraum.kwh_jahr_m3
-                    kwh_jahr_normal += heizkostenabschaetzungraum.kwh_jahr
-                elif heizkostenabschaetzungraum.winter == 'streng':
-                    heizkosten_monat_streng += heizkostenabschaetzungraum.heizkosten_monat
-                    heizkosten_jahr_streng += heizkostenabschaetzungraum.heizkosten_jahr
-                    kwh_jahr_m3_streng += heizkostenabschaetzungraum.kwh_jahr_m3
-                    kwh_jahr_streng += heizkostenabschaetzungraum.kwh_jahr
-
-        heizkostenabschaetzung_ges  = {"heizkosten_monat_mild": heizkosten_monat_mild,
-                                        "heizkosten_jahr_mild": heizkosten_jahr_mild,
-                                        "kwh_jahr_m3_mild": kwh_jahr_m3_mild,
-                                        "kwh_jahr_mild": kwh_jahr_mild,
-
-                                       "heizkosten_monat_normal": heizkosten_monat_normal,
-                                       "heizkosten_jahr_normal": heizkosten_jahr_normal,
-                                       "kwh_jahr_m3_normal": kwh_jahr_m3_normal,
-                                       "kwh_jahr_normal": kwh_jahr_normal,
-
-                                       "heizkosten_monat_streng": heizkosten_monat_streng,
-                                       "heizkosten_jahr_streng": heizkosten_jahr_streng,
-                                       "kwh_jahr_m3_streng": kwh_jahr_m3_streng,
-                                       "kwh_jahr_streng": kwh_jahr_streng,
-                                       }
-
-
-    except Exception as e:
-    #except Test_Raum.DoesNotExist:
+    except:
         raise Http404
-
     context['angebot'] = angebot
-    context['kunde'] = kunde
-    context['objekt'] = objekt
-    context['raeume'] = raeume
-    context['heizkostenabschaetzung_ges'] = heizkostenabschaetzung_ges
-
-    return render(request, 'angebot/angebot_detail.html', context)
-
-
-def generate_pdf_view(request, id=None, *args, **kwargs):
-
-    context = {}
-
-    try:
-        angebot = Test_Angebot.objects.get(id=id)
-        kunde = angebot.kundenid
-        user = request.user
-
-        objekt = Test_Objekt.objects.get(angebotid=angebot.id)
-        # mit .filter bekommt man ein queryset
-        raeume = Test_Raum.objects.filter(objektid=objekt.id)
-
-        anzS, anzM, anzL = 0,0,0
-
-        for raum in raeume:
-            anzS +=  raum.anzS
-            anzM += raum.anzM
-            anzL += raum.anzL
-
-        anz_heizkoerper = {"anzS": anzS,
-                           "anzM": anzM,
-                           "anzL": anzL,
-                            }
-
-        preise = Test_Heizkoerper.objects.all()
-
-        for preis in preise:
-            if preis.bezeichnung == 'S':
-                preisS = preis.preis
-            elif preis.bezeichnung == 'M':
-                preisM = preis.preis
-            elif preis.bezeichnung == 'L':
-                preisL = preis.preis
-
-        preisGes = preisS * anzS + preisM * anzM + preisL * anzL
-
-        preis_heizkoerper =  {"preisS": preisS,
-                            "preisM": preisM,
-                            "preisL": preisL,
-                            "preisGes": preisGes
-                            }
-
-    except Exception as e:
-    #except Test_Raum.DoesNotExist:
-        raise Http404
-
-    context['kunde'] = kunde
-    context['user'] = user
-    context['anz_heizkoerper'] = anz_heizkoerper
-    context['preis_heizkoerper'] = preis_heizkoerper
-
-    template = get_template('angebot/angebot_pdf.html')
-
-    html = template.render(context)
-    pdf = render_to_pdf('angebot/angebot_pdf.html', context)
-    if pdf:
-        response = HttpResponse(pdf, content_type='application/pdf')
-        filename = "Angebot_%s.pdf" % ("12341231")
-        content = "inline; filename='%s'" % (filename)
-        download = request.GET.get("download")
-        if download:
-            content = "attachment; filename='%s'" % (filename)
-        response['Content-Disposition'] = content
-        return response
-    return HttpResponse("Not found")
-
-
-# TODO: Rechner integrieren
-#function based view
-def rechner(request):#wird in urls.py aufgerufen
-    return render(request, 'angebot/angebot_rechner.html', {'title': 'Rechner'}) #das dritte Argument ist der Titel der im HTML File angezeigt wird
+    return render(request, 'angebot/detail_angebot.html', context)
 
 """
+@login_required(login_url="/login/")
+def vote_poll(request, id=None):
+    context = {}
+    try:
+        question = Question.objects.get(id=id)
+    except:
+        raise Http404
+    context["question"] = question
+
+    if request.method == "POST":
+        user_id = 1
+        print(request.POST)
+        data = request.POST
+        ret = Answer.objects.create(user_id=user_id, choice_id=data['choice'])
+        if ret:
+            return HttpResponseRedirect(reverse('poll_details', args=[question.id]))
+        else:
+            context["error"] = "Your vote is not done successfully"
+            return render(request, 'polls/poll.html', context)
+    else:
+        return render(request, 'polls/poll.html', context)
+"""
+
 ####################################
 #Alter Abschnitt
 ####################################
@@ -471,8 +267,6 @@ def createKunde(request):
         kundenform = KundeCreationForm()
 
     return render(request, 'angebot/angebot_testkunde_create.html', {'kundenform': kundenform})
-
-
 
 
 
@@ -523,14 +317,14 @@ class UpdateTestangebotInlineView(CreateWithInlinesView):
 #   z context = {
 #        'posts': Post.objects.all() #hier wird Post Model Objekt der Tabelle Post übergeben.
 #    }
-
+""""
 #Funktion View für Testkundenliste Anzeige
 def testkunde_list(request):
    testkunden = Testkunde.objects.all()
    return render(request,
                  'angebot/angebot.html',
                  {'testkunden': testkunden})
-
+"""
 
 #class based view, erbt von ListView
 class TestkundeListView(ListView):
@@ -593,4 +387,3 @@ class TestkundeUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
         return super().form_valid(form)#retur die form ist valide, mit der form als übergabenargument
 
 
-"""

@@ -1,0 +1,162 @@
+{% extends "blog/base.html" %}
+
+{% block content %}
+
+<p><br><a class="button-rot btn-block"  title="Angebot anlegen" href="{% url 'angebot:angebot_add'%}">Angebot anlegen</a></p>
+
+<br>
+
+<div class="row">
+
+	<div class="col">
+		<div class="col-md">
+			<div class="card text-center text-white mb-3" id="angebote-offen">
+			  	<div class="card-header hg-rot">
+			  		<h5 class="card-title schrift-weiss">#Angebote offen</h5>
+			  	</div>
+			  	<div class="card-body">
+			    	<h3 class="card-title">{{anz_angebote_offen}}</h3>
+			  	</div>
+			</div>
+		</div>
+	</div>
+
+	<div class="col">
+		<div class="col-md">
+			<div class="card text-center text-white mb-3" id="angebote-verkauft">
+			  	<div class="card-header hg-rot">
+			  		<h5 class="card-title schrift-weiss">#Angebote verkauft</h5>
+			  	</div>
+			  	<div class="card-body">
+			    	<h3 class="card-title">{{anz_angebote_verkauft}}</h3>
+			  	</div>
+			</div>
+		</div>
+	</div>
+
+	<div class="col">
+		<div class="col-md">
+			<div class="card text-center text-white  mb-3" id="angebote-nicht-verkauft">
+			  	<div class="card-header hg-rot">
+			  		<h6 class="card-title schrift-weiss">#Angebote n. verkauft</h6>
+			  	</div>
+			  	<div class="card-body">
+			    	<h3 class="card-title">{{anz_angebote_nicht_verkauft}}</h3>
+			  	</div>
+			</div>
+		</div>
+	</div>
+
+	<div class="col">
+		<div class="col-md">
+			<div class="card text-center text-white  mb-3" id="angebote-gesamt">
+			  	<div class="card-header hg-rot">
+			  		<h5 class="card-title schrift-weiss">#Angebote gesamt</h5>
+			  	</div>
+			  	<div class="card-body">
+			    	<h3 class="card-title">{{anz_angebote_gesamt}}</h3>
+			  	</div>
+			</div>
+		</div>
+	</div>
+</div>
+
+
+    <div class="table-responsive-sm">
+        {% if kunden %}
+        <h3>Angebote "offen" - {{user}}</h3>
+            <table class="table table-bordered table-hover table-md">
+                 <thead class="hg-rot schrift-weiss">
+                    <tr>
+                        <th>Kunde</th>
+                        <th>Angebot</th>
+                        <th>Erstelldatum</th>
+                        <th>Aktionen</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+
+                  <tbody>
+                     {% for kunde in kunden %}
+                                {% for angebot in kunde.test_angebot_set.all %}
+                                     {% if angebot.status == "offen" %}
+                            <tr>
+                            <td>{{kunde.kunde}}</td>
+                                        <td> {{ angebot.titel }} </td>
+                                        <td>{{ angebot.datum_erstellt }}</td>
+                                        <td>
+                                            <a class="btn-rot-weiss-small" href="{% url 'angebot:angebot_details' angebot.id %}">Detail</a>
+                                            <a class="btn-rot-weiss-small" href="{% url 'angebot:angebot_edit' angebot.id %}">Ändern</a>
+                                           <!-- <a class="btn-rot-weiss-small" href="{% url 'angebot:angebot_delete' angebot.id %}">Löschen</a> -->
+                                        </td>
+                                        <td>{{ angebot.status }}</td>
+                                     {% endif %}
+                                {% endfor %}
+                    </tr>
+                    {% endfor %}
+                </tbody>
+
+                </table>
+        {% else %}
+            <p>Keine Angebote mit Status "offen" verfügbar!</p>
+        {% endif%}
+    </div>
+
+
+<div class="row">
+	<div class="col-md-5">
+		<h5>CUSTOMERS:</h5>
+		<hr>
+		<div class="card card-body">
+			<a class="btn btn-primary  btn-sm btn-block" href="">Create Customer</a>
+			<table class="table table-sm">
+				<tr>
+					<th>Customer</th>
+					<th>Phone</th>
+				</tr>
+
+				{% for customer in customers %}
+					<tr>
+
+						<td>{{customer.name}}</td>
+						<td>{{customer.phone}}</td>
+					</tr>
+				{% endfor %}
+
+			</table>
+		</div>
+	</div>
+
+	<div class="col-md-7">
+		<h5>LAST 5 ORDERS</h5>
+		<hr>
+		<div class="card card-body">
+			<a class="btn btn-primary  btn-sm btn-block" href="">Create Order</a>
+			<table class="table table-sm">
+				<tr>
+					<th>Product</th>
+					<th>Date Orderd</th>
+					<th>Status</th>
+					<th>Update</th>
+					<th>Remove</th>
+				</tr>
+
+				{% for order in orders %}
+					<tr>
+						<td>{{order.product}}</td>
+						<td>{{order.date_created}}</td>
+						<td>{{order.status}}</td>
+						<td><a href="">Update</a></td>
+						<td><a href="">Delete</a></td>
+
+					</tr>
+				{% endfor %}
+
+
+			</table>
+		</div>
+	</div>
+
+</div>
+
+{% endblock content %}

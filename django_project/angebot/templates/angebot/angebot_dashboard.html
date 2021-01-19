@@ -1,0 +1,201 @@
+{% extends "blog/base.html" %}
+
+{% block content %}
+
+{% load template_tags %}
+
+<p><br><a class="button-rot btn-block"  title="Angebot anlegen" href="{% url 'angebot:angebot_add'%}">Angebot anlegen</a></p>
+
+<br>
+
+<div class="row">
+
+	<div class="col">
+		<div class="col-md">
+			<div class="card text-center text-white mb-3" id="angebote-offen">
+			  	<div class="card-header hg-rot">
+			  		<h5 class="card-title schrift-weiss">#Angebote offen</h5>
+			  	</div>
+			  	<div class="card-body">
+			    	<h3 class="card-title">{{anz_angebote_offen}}</h3>
+			  	</div>
+			</div>
+		</div>
+	</div>
+
+	<div class="col">
+		<div class="col-md">
+			<div class="card text-center text-white mb-3" id="angebote-verkauft">
+			  	<div class="card-header hg-rot">
+			  		<h5 class="card-title schrift-weiss">#Angebote verkauft</h5>
+			  	</div>
+			  	<div class="card-body">
+			    	<h3 class="card-title">{{anz_angebote_verkauft}}</h3>
+			  	</div>
+			</div>
+		</div>
+	</div>
+
+	<div class="col">
+		<div class="col-md">
+			<div class="card text-center text-white  mb-3" id="angebote-nicht-verkauft">
+			  	<div class="card-header hg-rot">
+			  		<h6 class="card-title schrift-weiss">#Angebote n. verkauft</h6>
+			  	</div>
+			  	<div class="card-body">
+			    	<h3 class="card-title">{{anz_angebote_nicht_verkauft}}</h3>
+			  	</div>
+			</div>
+		</div>
+	</div>
+
+	<div class="col">
+		<div class="col-md">
+			<div class="card text-center text-white  mb-3" id="angebote-gesamt">
+			  	<div class="card-header hg-rot">
+			  		<h5 class="card-title schrift-weiss">#Angebote gesamt</h5>
+			  	</div>
+			  	<div class="card-body">
+			    	<h3 class="card-title">{{anz_angebote_gesamt}}</h3>
+			  	</div>
+			</div>
+		</div>
+	</div>
+</div>
+<br>
+
+
+
+<div class="row">
+	<div class="col-md-12">
+		{% if kunden %}
+        		<h5>Angebote "offen"</h5>
+		{% endif%}
+		<hr>
+<div class="card card-body">
+    <div class="table-responsive-sm">
+        {% if kunden %}
+
+            <table class="table table-bordered table-hover table-md">
+                 <thead class="hg-rot schrift-weiss">
+                    <tr>
+                        <th>Kunde</th>
+                        <th>Angebot</th>
+                        <th>Erstelldatum</th>
+                        <th>Aktionen</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+
+                  <tbody>
+                     {% for kunde in kunden %}
+					 {% get_angebote_filter_status_offen kunde as angebote_status_offen %}
+                                {% for angebot in angebote_status_offen %}
+                            <tr>
+                            <td>{{kunde.kunde}}</td>
+                                        <td> {{ angebot.titel }} </td>
+                                        <td>{{ angebot.datum_erstellt }}</td>
+                                        <td>
+                                            <a class="btn-rot-weiss-small" href="{% url 'angebot:angebot_details' angebot.id %}">Detail</a>
+                                            <a class="btn-rot-weiss-small" href="{% url 'angebot:angebot_edit' angebot.id %}">Ändern</a>
+                                           <!-- <a class="btn-rot-weiss-small" href="{% url 'angebot:angebot_delete' angebot.id %}">Löschen</a> -->
+                                        </td>
+                                        <td>{{ angebot.status }}</td>
+                                {% endfor %}
+                    </tr>
+                    {% endfor %}
+                </tbody>
+                </table>
+        {% else %}
+            <p>Keine Angebote mit Status "offen" verfügbar!</p>
+        {% endif%}
+		{% if  anz_angebote_offen == 0%} <!--workaround-wenn kunden vorhandne aber keine offenen angebote-->
+            <p>Keine Angebote mit Status "offen" verfügbar!</p>
+        {% endif%}
+    </div>
+</div>
+<br>
+
+<div class="row">
+	<div class="col-md-6">
+		{% if kunden %}
+        		<h5>Angebote "verkauft"</h5>
+		{% endif%}
+		<hr>
+		<div class="card card-body">
+            <table class="table table-bordered table-hover table-md">
+                 <thead class="hg-rot schrift-weiss">
+                    <tr>
+                        <th>Kunde</th>
+                        <th>Angebot</th>
+                        <th>Erstelldatum</th>
+                    </tr>
+                </thead>
+
+
+                  <tbody>
+                     {% for kunde in kunden %}
+					 {% get_angebote_filter_status_verkauft kunde as angebote_status_verkauft %}
+                                {% for angebot in angebote_status_verkauft %}
+										<tr>
+										<td>{{kunde.kunde}}</td>
+                                        <td> {{ angebot.titel }} </td>
+                                        <td>{{ angebot.datum_erstellt }}</td>
+										</tr>
+                                 {% endfor %}
+
+                    {% endfor %}
+				  			{% if  anz_angebote_verkauft == 0%} <!--workaround-wenn kunden vorhandne aber keine offenen angebote-->
+					 <tr> <td colspan="3">Keine Angebote mit Status "verkauft" verfügbar!</td></tr>
+       					 {% endif%}
+
+                </tbody>
+                </table>
+
+	</div>
+	</div>
+
+
+
+<div class="row">
+	<div class="col-md-6">
+		{% if kunden %}
+        		<h5>Angebote "nicht verkauft"</h5>
+		{% endif%}
+		<hr>
+		<div class="card card-body">
+            <table class="table table-bordered table-hover table-md">
+                 <thead class="hg-rot schrift-weiss">
+                    <tr>
+                        <th>Kunde</th>
+                        <th>Angebot</th>
+                        <th>Erstelldatum</th>
+                    </tr>
+                </thead>
+
+
+                  <tbody>
+                     {% for kunde in kunden %}
+					 {% get_angebote_filter_status_nicht_verkauft kunde as angebote_status_nicht_verkauft %}
+                                {% for angebot in angebote_status_nicht_verkauft %}
+										<tr>
+										<td>{{kunde.kunde}}</td>
+                                        <td> {{ angebot.titel }} </td>
+                                        <td>{{ angebot.datum_erstellt }}</td>
+										</tr>
+                                 {% endfor %}
+
+                    {% endfor %}
+                </tbody>
+                </table>
+								  	{% if  anz_angebote_nicht_verkauft == 0%} <!--workaround-wenn kunden vorhandne aber keine offenen angebote-->
+            <tr>
+				<td>Keine Angebote mit Status "nicht verkauft" verfügbar!</td>
+										</tr>
+        	{% endif%}
+
+
+	</div>
+</div>
+
+{% endblock content %}

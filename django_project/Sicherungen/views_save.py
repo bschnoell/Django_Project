@@ -2,8 +2,8 @@ from django.shortcuts import render, redirect, reverse, get_object_or_404
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
-from .models import Testkunde, Testangebot
-from .forms import KundeCreationForm
+from django_project.angebot.models import Testkunde, Testangebot
+from django_project.angebot.forms import KundeCreationForm
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required #login decorator importieren
 from django.views.generic import View
@@ -12,8 +12,8 @@ from django.views.decorators.csrf import csrf_exempt
 from django.http import HttpResponseRedirect, Http404
 from django.contrib.auth.decorators import login_required
 from django.utils.decorators import method_decorator
-from .forms import *
-from .models import *
+from django_project.angebot.forms import *
+from django_project.angebot.models import *
 
 from django.views.generic import (
     DetailView,

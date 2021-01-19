@@ -1,0 +1,151 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+    <head>
+        <title>Title</title>
+        <style type="text/css">
+
+            body {
+                font-weight: 200;
+                font-size: 14px;
+            }
+            .header {
+                border-color: #cf776B;
+                font-size: 20px;
+                font-weight: 100;
+                text-align: center;
+                color: #007cae;
+            }
+            .title {
+                font-size: 22px;
+                font-weight: 100;
+               /* text-align: right;*/
+               padding: 10px 20px 0px 20px;
+            }
+            .title span {
+                color: #007cae;
+            }
+            .details {
+                padding: 10px 20px 0px 20px;
+                text-align: left !important;
+                /*margin-left: 40%;*/
+            }
+            .hrItem {
+                border: none;
+                height: 1px;
+                /* Set the hr color */
+                color: #333; /* old IE */
+                background-color: #fff; /* Modern Browsers */
+            }
+
+            th {
+              height: 70px;
+              text-align: center;
+            }
+
+            td{
+                height: 40px;
+                vertical-align: center;
+                text-align: left;
+                margin-left: 15px;
+                margin-top: 15px;
+            }
+
+            table, td, th {
+                border: 1px solid black;
+            }
+
+            table {
+                width: 100%;
+                border-collapse: collapse;
+            }
+
+
+
+        </style>
+    </head>
+    <body>
+
+
+
+
+        <div class='wrapper'>
+            <div class='header'>
+                <p class='title'>Angebot</p>
+            </div>
+        <div>
+
+        <div class='details'>
+            {{kunde.kunde}} <br/>
+            {{kunde.strasse}} <br/>
+            {{kunde.plz}} {{kunde.ort}} <br/>
+            Tel.Nr.: {{kunde.telefonnr}} <br/>
+            E-Mail:{{kunde.mail}} <br/>
+
+            <hr class='hrItem' />
+        </div>
+            <br>
+            <br>
+            Es freut uns, dass Sie sich für unsere Produkte und Dienstleistungen entschieden haben. <br>
+            Gerne offerieren wir wie folgt:
+
+                    <table>
+                <thead>
+                    <tr>
+                                <th>ERS Heatscreen S</th>
+                                <th>ERS Heatscreen M</th>
+                                <th>ERS Heatscreen L</th>
+
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>{{anz_heizkoerper.anzS}}</td>
+                        <td>{{anz_heizkoerper.anzM}}</td>
+                        <td>{{anz_heizkoerper.anzL}}</td>
+                    </tr>
+                    <tr>
+                        <td>Gesamt:</td>
+                        <td>{{preis_heizkoerper.preisGes}}</td>
+                    </tr>
+                </tbody>
+       </table>
+      <br>
+            <br>      <br>
+            <br>
+
+            <h3>Headerlogo</h3>
+              {{user.profile.firma}}
+              <br>
+              {{user.profile.image}}
+              <br>
+              {{user.profile.image.url}}
+              <br>
+                kunde: {{ kunde.kunde }}
+              <img src="{{ user.profile.image.url }}">
+
+
+
+
+    </div>
+
+    <div id="footer_content">Seite <pdf:pagenumber>
+        von <pdf:pagecount>
+    </div>
+
+    </body>
+</html>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

@@ -4,63 +4,137 @@
 <br>
     <form method="POST">
         {% csrf_token %}
-        <table class="table table-bordered">
-                <thead class="thead-dark">
+            <table class="table table-bordered table-hover table-md">
+                 <thead class="hg-rot schrift-weiss">
                     <tr>
-                        <th>Kunde</th>
-                        <th></th>
+                        <th colspan="6">Kunde</th>
                     </tr>
                 </thead>
                 <tbody>
-                     {{kunde_form.as_table}}
+                     <tr>
+                         <td>{{ kunde_form.kunde.label_tag }}</td> <td colspan="5">{{ kunde_form.kunde }}</td>
+                     </tr>
+                     <tr>
+                        <td>{{ kunde_form.plz.label_tag }}</td> <td> {{ kunde_form.plz }}</td>
+                        <td>{{ kunde_form.ort.label_tag }}</td> <td> {{ kunde_form.ort }}</td>
+                        <td>{{ kunde_form.strasse.label_tag }}</td> <td> {{ kunde_form.strasse }}</td>
+
+                     </tr>
+                     <tr>
+                        <td>{{ kunde_form.telefonnr.label_tag }}</td> <td> {{ kunde_form.telefonnr }}</td>
+                        <td>{{ kunde_form.mail.label_tag }}</td> <td colspan="4"> {{ kunde_form.mail }}</td>
+                     </tr>
+                     <tr>
+                        <td>{{ kunde_form.stromkosten.label_tag }}</td> <td> {{ kunde_form.stromkosten }}</td>
+                        <td>{{ kunde_form.heiztage.label_tag }}</td> <td> {{ kunde_form.heiztage }}</td>
+                        <td>{{ kunde_form.raumtemp.label_tag }}</td> <td> {{ kunde_form.raumtemp}}</td>
+                     </tr>
                 </tbody>
-        </table>
+            </table>
         <br>
-        <table class="table table-bordered">
-                <thead class="thead-dark">
+<!--
+         <table class="table table-bordered">
+                <thead class="hg-rot schrift-weiss">
                     <tr>
-                        <th>Angebot</th>
-                        <th></th>
+                        <th colspan="6">Angebot</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                     <tr>
+                        <td>{{ angebot_form.titel.label_tag }}</td> <td colspan="5"> {{ angebot_form.titel }}</td>
+                     </tr>
+                </tbody>
+            </table>
+-->
+
+         <table class="table table-bordered">
+                <thead class="hg-rot schrift-weiss">
+                    <tr>
+                        <th colspan="4">Objekt</th>
                     </tr>
                 </thead>
                 <tbody>
-                     {{angebot_form.as_table}}
+                <!--
+                    <tr>
+                         <td>{{ objekt_form.bezeichnung.label_tag }}</td> <td colspan="3">{{ objekt_form.bezeichnung }}</td>
+                    </tr>
+                    -->
+                    <tr>
+                        <td>{{ objekt_form.baustoff.label_tag }}</td> <td>{{ objekt_form.baustoff }}</td>
+                        <td>{{ objekt_form.bauweiseid.label_tag }}</td> <td>{{ objekt_form.bauweiseid }}</td>
+                    </tr>
+                    <tr>
+                        <td>{{ objekt_form.dickeaussenwand.label_tag }}</td> <td>{{ objekt_form.dickeaussenwand }}</td>
+                        <td>{{ objekt_form.dickedaemmung.label_tag }}</td> <td>{{ objekt_form.dickedaemmung }}</td>
+                    </tr>
+                    <tr>
+                         <td>{{ objekt_form.fensterqualitaet.label_tag }}</td> <td colspan="3">{{ objekt_form.fensterqualitaet }}</td>
+                    </tr>
                 </tbody>
         </table>
-        <br>
-        <table class="table table-bordered">
-                <thead class="thead-dark">
+
+   <table class="table table-bordered">
+                <thead class="hg-rot schrift-weiss">
                     <tr>
-                        <th>Objekt</th>
-                        <th></th>
+                        <th colspan="6">Räume</th>
                     </tr>
-                </thead>
-                <tbody>
-                     {{objekt_form.as_table}}
-                </tbody>
-        </table>
-        <br>
-        <table class="table table-bordered">
-                <thead class="thead-dark">
-                    <tr>
-                        <th>Räume</th>
-                        <th></th>
-                        <th></th>
-                        <th></th>
-                        <th></th>
-                        <th></th>
-                    </tr>
+                    {% for raum in raum_forms  %}
+                        {% if forloop.first %}
+                            <tr>
+                                <th>{{ raum.name.label_tag }}</th>
+                                <th>{{ raum.hoehe.label_tag }}</th>
+                                <th>{{ raum.flaeche.label_tag }}</th>
+                                <th>{{ raum.anzfenster.label_tag }}</th>
+                                <th>{{ raum.anzaussenflaechen.label_tag }}</th>
+                                <th>{{ raum.alternative.label_tag }}</th>
+                            </tr>
+                        {% endif %}
+                    {% endfor %}
                 </thead>
                 <tbody>
                 {% for raum in raum_forms  %}
                     <tr>
+                            <td>{{ raum.name }}</td>
+                            <td>{{ raum.hoehe }}</td>
+                            <td>{{ raum.flaeche }}</td>
+                            <td>{{ raum.anzfenster }}</td>
+                            <td>{{ raum.anzaussenflaechen }}</td>
+                            <td>{{ raum.alternative }}</td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+        </table>
+        <div class="alert alert-primary" role="alert">
+        Die Berechnung der Heizkörper (Anzahl pro Raum und Größe) wird durch einen Algorithus von
+            ERS-Heatscreen berechnet. <br>Wollen Sie wirklich die Berechnung manuell überschreiben?
+        </div>
 
-                            <td>{{ raum.name.label_tag }}{{ raum.name }}</td>
-                            <td>{{ raum.hoehe.label_tag }}{{ raum.hoehe }}</td>
-                            <td>{{ raum.flaeche.label_tag }}{{ raum.flaeche }}</td>
-                            <td>{{ raum.anzfenster.label_tag }}{{ raum.anzfenster }}</td>
-                            <td>{{ raum.anzaussenflaechen.label_tag }}{{ raum.anzaussenflaechen }}</td>
-                            <td>{{ raum.alternative.label_tag }}{{ raum.alternative }}</td>
+           <table class="table table-bordered">
+                <thead class="hg-rot schrift-weiss">
+                    <tr>
+                        <th colspan="5">Heizkörperberechnung ändern</th>
+                    </tr>
+                    {% for raum in raum_forms  %}
+                        {% if forloop.first %}
+                            <tr>
+                                <td>{{ raum.anzManuellUeberschrieben.label_tag }}</td>
+                                <td>{{ raum.name.label_tag }}</td>
+                                <th>{{ raum.anzS.label_tag }}</th>
+                                <th>{{ raum.anzM.label_tag }}</th>
+                                <th>{{ raum.anzL.label_tag }}</th>
+                            </tr>
+                        {% endif %}
+                    {% endfor %}
+                </thead>
+                <tbody>
+                {% for raum in raum_forms  %}
+                    <tr>
+                            <td>{{ raum.anzManuellUeberschrieben }} Ja</td>
+                            <td>{{ raum.name.value }}</td>
+                            <td>{{ raum.anzS }}</td>
+                            <td>{{ raum.anzM }}</td>
+                            <td>{{ raum.anzL }}</td>
                     </tr>
                 {% endfor %}
                 </tbody>

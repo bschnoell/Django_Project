@@ -5,7 +5,6 @@ from django.contrib.auth.models import User
 from django import forms
 
 #TODO: Erstellt Datum hinzufügen
-#TODO: Status bei Angebot
 #TODO: Rabatt bei Angebot
 
 class Test_Kunde(models.Model):
@@ -16,15 +15,25 @@ class Test_Kunde(models.Model):
     telefonnr = models.CharField(max_length=15, default='', blank=True)
     mail = models.EmailField(max_length=100, default='', blank=True)
     strasse = models.CharField(max_length=100, default='', blank=True)
-    heiztage = models.IntegerField(default=0)
-    raumtemp = models.IntegerField(default=0)
-    stromkosten = models.CharField(max_length=50, default='', blank=True)
+    heiztage = models.IntegerField(default=220)
+    raumtemp = models.IntegerField(default=22)
+    #stromkosten = models.CharField(max_length=50, default='0,19€', blank=True)
+    stromkosten = models.FloatField(default='0.19')
 
 class Test_Bauweise(models.Model):
-    art = models.CharField(max_length=100)
+    art = models.CharField(max_length=100, default='', blank=True)
     bezeichnung = models.CharField(max_length=100, default='', blank=True)
-    energiekennzahl = models.CharField(max_length=50, default='', blank=True)
-    wert = models.IntegerField(default='0')
+    energiekennzahl = models.CharField(max_length=100, default='', blank=True)
+    wert = models.CharField(max_length=100, default='', blank=True)
+
+class T_Bauweise(models.Model):
+    art = models.CharField(max_length=100, default='', blank=True)
+    bezeichnung = models.CharField(max_length=100, default='', blank=True)
+    energiekennzahl = models.CharField(max_length=100, default='', blank=True)
+    energiekennzahlwert = models.FloatField(default=0)
+    heiztagewintermild = models.FloatField(default=0)
+    heiztagewinternormal = models.FloatField(default=0)
+    heiztagewinterstreng = models.FloatField(default=0)
 
 
 class Test_Baustoff(models.Model):
@@ -41,7 +50,7 @@ class t_lambda(models.Model):
     wert = models.FloatField(default='0')
 
 class Test_Angebot(models.Model):
-    BOOL_CHOICES = ((True, 'offen'), (False, 'abgeschlossen'))
+    #CHOICES = (('offen', 'offen'), ('verkauft', 'verkauft'), ('nicht verkauft', 'nicht verkauft'))
 
     kundenid = models.ForeignKey(Test_Kunde, on_delete=models.CASCADE, blank=True, null=True)
     titel = models.CharField(max_length=100, default='', blank=True)
@@ -50,11 +59,11 @@ class Test_Angebot(models.Model):
     anschlussM = models.IntegerField(default='0', blank=True, null=True)
     anschlussL = models.IntegerField(default='0', blank=True, null=True)
     datum_erstellt = models.DateTimeField(default=timezone.now) #timezone.now ist eine funktion, aber hier keine () am Ende, hier wird nur der name der funktion übergeben
-    status = models.BooleanField(choices=BOOL_CHOICES, default=True)
+    status = models.CharField(default='offen', max_length=15)
+    rabatt = models.FloatField(default='0',blank=True, null=True)
 
     def get_absolute_url(self):
         return reverse('angebot_details', kwargs={'pk': self.pk})
-
 
 
 class Test_Objekt(models.Model):
@@ -65,15 +74,20 @@ class Test_Objekt(models.Model):
     #baustoffid = models.ForeignKey(Test_Baustoff, on_delete=models.CASCADE)#alt
     #baustoffid = models.IntegerField(default=0)#alt
     #TODO: bauweiseid noch umschreiben - wie baustoff id choose feld machen
-    #bauweiseid = models.ForeignKey(Test_Bauweise, on_delete=models.CASCADE)
+   # bauweiseid = models.ForeignKey(Test_Bauweise, on_delete=models.CASCADE)
+    bauweiseid = models.IntegerField(default=0)
 
     #baustofffeld wird über das choices feld in models gespeichert
     baustoff = models.IntegerField(default=0)
+
     bezeichnung = models.CharField(max_length=100, default='', blank=True)
     dickeaussenwand = models.IntegerField(default='0', blank=True, null=True)
     dickedaemmung = models.IntegerField(default='0')
     uwert = models.IntegerField(default='0')
     fensterqualitaet = models.BooleanField(choices=BOOL_CHOICES, default=True)
+
+
+
 
 class Test_Raum(models.Model):
 
@@ -87,9 +101,10 @@ class Test_Raum(models.Model):
     anzaussenfenster = models.IntegerField(default='0')#das Feld gehört noch gelöscht!!!
     anzaussenflaechen = models.IntegerField(default='0')
     alternative = models.BooleanField(choices=BOOL_CHOICES, default=False)
-    anzS = models.IntegerField(default='0')
-    anzM = models.IntegerField(default='0')
-    anzL = models.IntegerField(default='0')
+    anzS = models.IntegerField(default='0', blank=True)
+    anzM = models.IntegerField(default='0', blank=True)
+    anzL = models.IntegerField(default='0', blank=True)
+    anzManuellUeberschrieben = models.BooleanField(default=False, blank=True)
     es980 = models.IntegerField(default='0')
     es981 = models.IntegerField(default='0')
     es982 = models.IntegerField(default='0')
@@ -98,9 +113,24 @@ class Test_Raum(models.Model):
     es820 = models.IntegerField(default='0')
     es700 = models.IntegerField(default='0')
 
+class T_Heizkostenabschaetzung_Raum(models.Model):
+    raum = models.ForeignKey(Test_Raum, on_delete=models.CASCADE, null=True)
+    winter = models.CharField(max_length=20, default='', blank=True)
+    kwh_jahr_m3 =  models.FloatField(default='0.0')
+    kwh_jahr = models.FloatField(default='0.0')
+    heizkosten_jahr = models.FloatField(default='0.0')
+    heizkosten_monat = models.FloatField(default='0.0')
+
+class T_Heizkostenabschaetzung_Gesamt(models.Model):
+    angebot = models.OneToOneField(Test_Angebot, on_delete=models.CASCADE)  # hat 1:1 Beziehung zu User Tabelle
+    winter = models.CharField(max_length=20, default='', blank=True)
+    kwh_jahr_m3 =  models.FloatField(default='0.0')
+    heizkosten_jahr = models.FloatField(default='0.0')
+    heizkosten_monat = models.FloatField(default='0.0')
+
 class Test_Heizkoerper(models.Model):
     bezeichnung = models.CharField(max_length=100, default='', blank=True)
-    preis = models.IntegerField(default='0')
+    preis = models.FloatField(default='0')
 
 class Test_Steuerung(models.Model):
     name = models.CharField(max_length=100, default='', blank=True)
